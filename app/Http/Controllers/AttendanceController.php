@@ -49,7 +49,7 @@ class AttendanceController extends Controller
         return response()->json($participant);
     }
 
-    // Proses Check-in Mandiri dengan Validasi PIN
+
     public function checkIn(Request $request)
     {
         $request->validate([
@@ -57,35 +57,42 @@ class AttendanceController extends Controller
             'pin' => 'required|string|size:3',
         ]);
 
-        // 1. Validasi PIN Hari Ini (Bisa disimpan di .env dengan key ATTENDANCE_PIN)
         $pinHariIni = env('ATTENDANCE_PIN', '782');
         if ($request->pin !== $pinHariIni) {
-            return back()->withErrors(['pin' => 'Kode PIN yang Anda masukkan salah! Silakan lihat papan pengumuman panitia.']);
+            return back()->withErrors(['pin' => 'Kode PIN yang Anda masukkan salah!']);
         }
 
         $participant = Participant::where('nomor_induk', $request->nomor_induk)->firstOrFail();
 
-        // 2. Cek apakah sudah pernah check-in
         if ($participant->is_present) {
             return back()->withErrors(['nomor_induk' => 'Anda sudah melakukan check-in sebelumnya!']);
         }
 
-        // 3. Generate Nomor Kupon Urut otomatis (Contoh: MD-0001, MD-0002)
         $totalHadir = Participant::where('is_present', true)->count();
         $nomorUrut = str_pad($totalHadir + 1, 4, '0', STR_PAD_LEFT);
         $nomorKupon = 'MD-' . $nomorUrut;
 
-        // 4. Update data kehadiran
         $participant->update([
             'is_present' => true,
             'nomor_kupon' => $nomorKupon,
             'attended_at' => now(),
         ]);
 
-        // Kembalikan data terbaru ke halaman Vue bawaan Inertia v3
-        return back()->with('success', [
-            'message' => 'Check-in Berhasil!',
+        // KUNCI: Redirect ke halaman kupon membawa parameter nomor_induk
+        return redirect()->route('attendance.kupon', ['nomor_induk' => $participant->nomor_induk]);
+    }
+
+    // Method baru untuk menampilkan halaman khusus Kupon
+    public function kupon($nomorInduk)
+    {
+        $participant = Participant::where('nomor_induk', $nomorInduk)
+            ->where('is_present', true)
+            ->firstOrFail(); // Amankan agar yang belum check-in tidak bisa nembak route ini
+
+        return Inertia::render('Attendance/Kupon', [
             'participant' => $participant
         ]);
     }
+
+
 }

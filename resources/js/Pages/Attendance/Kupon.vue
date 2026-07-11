@@ -1,125 +1,27 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useForm, usePage, router } from '@inertiajs/vue3'
-import { Snackbar } from '@varlet/ui'
+import { router, usePage } from '@inertiajs/vue3'
+import { Paper, Result, Button, Icon } from '@varlet/ui'
+import Vue3Lottie from 'vue3-lottie'
 import bubbleAnimation from '../../Assets/bubble-explosion.json'
 
-const page = usePage()
-
-interface Participant {
-    id: number;
-    nomor_induk: string;
-    nama_lengkap: string;
-    departemen: string;
-    lokasi_kerja: string;
-    is_present: boolean;
-    nomor_kupon: string | null;
-}
-
-// State Aplikasi
-const nomorIndukInput = ref('')
-const isLoadingSearch = ref(false)
-const dataKaryawan = ref<Participant | null>(null)
-
-// Form Prosedur Check-in Inertia v3
-const form = useForm({
-    nomor_induk: '',
-    pin: ''
-})
-
-
-
-
-const cariDataKaryawan = () => {
-    if (!nomorIndukInput.value) {
-        Snackbar.warning('Silakan masukkan Nomor Induk terlebih dahulu!')
-        return
+// Menerima data participant langsung sebagai props
+const props = defineProps<{
+    participant: {
+        id: number;
+        nomor_induk: string;
+        nama_lengkap: string;
+        departemen: string;
+        lokasi_kerja: string;
+        is_present: boolean;
+        nomor_kupon: string;
     }
+}>()
 
-    isLoadingSearch.value = true
-    const baseUrl = page.props.app_url
-
-    router.visit(`${baseUrl}/absensi`, {
-        method: 'get',
-        data: { search_nik: nomorIndukInput.value },
-        only: ['searched_participant', 'search_error'],
-        preserveState: true,
-        onFinish: () => {
-            isLoadingSearch.value = false
-
-            // Mengambil data fresh hasil pencarian dari props terbaru Inertia v3
-            const hasilCari = page.props.searched_participant as Participant | null
-            const errorCari = page.props.search_error as string | null
-
-            if (errorCari) {
-                Snackbar.error(errorCari)
-                dataKaryawan.value = null
-                return
-            }
-
-            if (hasilCari) {
-                // KUNCI UTAMA: Kita masukkan data terbaru ke reactive state Vue
-                dataKaryawan.value = hasilCari
-                form.nomor_induk = hasilCari.nomor_induk
-
-                if (hasilCari.is_present) {
-                    Snackbar.info('Anda sudah check-in sebelumnya! Menampilkan Kupon Anda.')
-                } else {
-                    Snackbar.success('Data ditemukan! Silakan masukkan PIN Kehadiran.')
-                }
-            }
-        }
-    })
-}
-
-
-const dataSukses = computed(() => page.props.flash?.success as any || null)
-
-// KUNCI: Ubah dataKaryawan atau pesertaAktif agar otomatis mengambil data dari flash jika ada
-const pesertaAktif = computed<Participant | null>(() => {
-    // 1. Jika ada data sukses dari flash setelah check-in, prioritaskan ini
-    if (dataSukses.value && dataSukses.value.participant) {
-        return dataSukses.value.participant
-    }
-    // 2. Jika tidak ada flash, gunakan data pencarian lokal yang berstatus is_present
-    if (dataKaryawan.value && dataKaryawan.value.is_present) {
-        return dataKaryawan.value
-    }
-    return null
-})
-
-
-const eksekusiCheckIn = () => {
-    if (form.pin.length !== 3) {
-        Snackbar.warning('PIN harus terdiri dari 3 digit angka!')
-        return
-    }
-
-    const baseUrl = page.props.app_url
-
-    form.post(`${baseUrl}/absensi/checkin`, {
-        onSuccess: () => {
-            Snackbar.success('Selamat! Check-in berhasil dilakukan.')
-            form.reset('pin')
-            // Kita tidak perlu memanipulasi dataKaryawan.value secara manual lagi di sini,
-            // karena computed 'pesertaAktif' di atas akan otomatis mendeteksi perubahan page.props.flash
-        },
-        onError: (errors) => {
-            if(errors.pin) Snackbar.error(errors.pin)
-            if(errors.nomor_induk) Snackbar.error(errors.nomor_induk)
-        }
-    })
-}
-
-// Fungsi Share ke WhatsApp Instan
 const bagikanKeWhatsApp = () => {
-    if (!pesertaAktif.value) return
+    const nama = props.participant.nama_lengkap
+    const kupon = props.participant.nomor_kupon
+    const dept = props.participant.departemen
 
-    const nama = pesertaAktif.value.nama_lengkap
-    const kupon = pesertaAktif.value.nomor_kupon
-    const dept = pesertaAktif.value.departemen
-
-    // Membuat template pesan text dengan format cetak tebal (*) khas WA
     const teksPesan = encodeURIComponent(
         `*KUPON LUCKY DRAW - HUT MARK DYNAMICS*\n\n` +
         `Halo rekan-rekan, saya telah sukses melakukan E-Absensi!\n\n` +
@@ -128,81 +30,85 @@ const bagikanKeWhatsApp = () => {
         `🎟️ *NOMOR UNDIAN:* ${kupon}\n\n` +
         `Semoga beruntung di acara Door Prize nanti! 🎉`
     )
-
-    // Membuka tautan API WhatsApp
     window.open(`https://api.whatsapp.com/send?text=${teksPesan}`, '_blank')
+}
+
+const page = usePage()
+
+const kembaliUtama = () => {
+    // Mengambil base URL dinamis dari Laravel (http://localhost/varlet/public)
+    const baseUrl = page.props.app_url
+
+    // Gabungkan dengan endpoint absensi
+    router.get(`${baseUrl}/absensi`)
 }
 </script>
 
 <template>
     <div class="container-absensi">
-
         <div class="lottie-bg-global">
-            <Vue3Lottie
-                :animationData="bubbleAnimation"
-                :loop="true"
-                :autoPlay="true"
-            />
+            <Vue3Lottie :animationData="bubbleAnimation" :loop="true" :autoPlay="true" />
         </div>
-
 
         <div class="header-banner">
             <h2>HUT PT Mark Dynamics Indonesia Tbk</h2>
             <p>Sistem E-Absensi &amp; Kupon Undian Mandiri</p>
         </div>
 
-
-        <div class="step-wrapper">
-            <var-paper :elevation="2" class="card-box">
-                <h3 class="step-title">Langkah 1: Cari Data Anda</h3>
-                <var-input
-                    v-model="nomorIndukInput"
-                    placeholder="Masukkan Nomor Induk Karyawan (NIK)"
-                    clearable
-                />
-                <var-button
-                    type="primary"
-                    block
-                    style="margin-top: 15px;"
-                    :loading="isLoadingSearch"
-                    @click="cariDataKaryawan"
-                >
-                    Cari Nama Saya
-                </var-button>
-            </var-paper>
-
-            <var-paper v-if="dataKaryawan && !dataKaryawan.is_present" :elevation="2" class="card-box animasi-muncul">
-                <h3 class="step-title">Langkah 2: Konfirmasi Kehadiran</h3>
-
-                <div class="info-karyawan">
-                    <p><strong>Nama:</strong> {{ dataKaryawan.nama_lengkap }}</p>
-                    <p><strong>Departemen:</strong> {{ dataKaryawan.departemen }} ({{ dataKaryawan.lokasi_kerja }})</p>
+        <div class="animasi-muncul">
+            <var-paper :elevation="4" class="ticket-card">
+                <div class="ticket-header">
+                    <var-result type="success" title="CHECK-IN BERHASIL" />
+                    <p class="ticket-subtitle">Bukti Kehadiran &amp; Kupon Door Prize Resmi</p>
                 </div>
 
-                <div class="pin-section">
-                    <p class="pin-instruction">Masukkan 3 Digit PIN yang tertera pada Papan Pengumuman Gerbang Masuk:</p>
-                    <var-input
-                        v-model="form.pin"
-                        maxlength="3"
-                        placeholder="Contoh: 000"
-                        type="number"
-                        center
-                    />
+                <div class="ticket-divider">
+                    <div class="notch notch-left"></div>
+                    <div class="notch notch-right"></div>
                 </div>
 
-                <var-button
-                    type="success"
-                    block
-                    style="margin-top: 20px;"
-                    :disabled="form.processing"
-                    @click="eksekusiCheckIn"
-                >
-                    Konfirmasi &amp; Ambil Nomor Undian
-                </var-button>
+                <div class="ticket-body">
+                    <div class="kupon-badge">
+                        <span class="kupon-label">NOMOR KUPON ANDA</span>
+                        <h1 class="kupon-number">{{ props.participant.nomor_kupon }}</h1>
+                    </div>
+
+                    <div class="meta-details">
+                        <div class="meta-row">
+                            <span class="meta-label">Nama Karyawan</span>
+                            <span class="meta-value text-bold">{{ props.participant.nama_lengkap }}</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-label">Nomor Induk</span>
+                            <span class="meta-value">{{ props.participant.nomor_induk }}</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-label">Departemen</span>
+                            <span class="meta-value">{{ props.participant.departemen }}</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-label">Lokasi Kerja</span>
+                            <span class="meta-value">{{ props.participant.lokasi_kerja }}</span>
+                        </div>
+                    </div>
+                    <p class="ticket-note">*Silakan screenshot halaman ini sebagai cadangan bukti fisik.</p>
+                </div>
             </var-paper>
+
+            <div class="action-wrapper">
+                <var-button type="success" block size="large" @click="bagikanKeWhatsApp">
+                    <template #left-icon><var-icon name="whatsapp" /></template>
+                    Bagikan Nomor Kupon ke WhatsApp
+                </var-button>
+
+                <var-button type="warning" block style="margin-top: 10px;" @click="kembaliUtama">
+                    Kembali ke Halaman Utama
+                </var-button>
+            </div>
         </div>
     </div>
 </template>
+
 
 <style scoped>
 /* 1. CONTAINER UTAMA (Jangkar untuk Background & Absolutitas) */
@@ -442,4 +348,5 @@ const bagikanKeWhatsApp = () => {
     }
 }
 </style>
+
 
