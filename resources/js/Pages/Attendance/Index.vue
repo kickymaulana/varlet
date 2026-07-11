@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useForm, usePage, router } from '@inertiajs/vue3'
 import { Snackbar } from '@varlet/ui'
+import bubbleAnimation from '../../Assets/bubble-explosion.json'
 
 const page = usePage()
 
@@ -144,7 +145,17 @@ const bagikanKeWhatsApp = () => {
 
 <template>
     <div class="container-absensi">
+
+
+
         <div class="header-banner">
+        <div class="lottie-bg-global">
+            <Vue3Lottie
+                :animationData="bubbleAnimation"
+                :loop="true"
+                :autoPlay="true"
+            />
+        </div>
             <h2>HUT PT Mark Dynamics Indonesia Tbk</h2>
             <p>Sistem E-Absensi &amp; Kupon Undian Mandiri</p>
         </div>
@@ -400,7 +411,10 @@ const bagikanKeWhatsApp = () => {
 }
 
 /* BOX FORM CARI & INPUT PIN */
+
 .card-box {
+    position: relative;
+    z-index: 2; /* Naik di atas layer animasi gelembung */
     padding: 25px 20px;
     margin-bottom: 20px;
     border-radius: 12px;
@@ -408,6 +422,18 @@ const bagikanKeWhatsApp = () => {
     border: 1px solid rgba(218, 204, 193, 0.4);
     box-shadow: 0 10px 25px rgba(168, 150, 134, 0.15);
 }
+
+/* Memastikan wrapper langkah awal berada di atas gelembung */
+.step-wrapper {
+    position: relative;
+    z-index: 2;
+}
+
+/* Kustomisasi Input Varlet */
+:deep(.var-input) {
+    --input-focus-color: #f35b04;
+}
+
 .step-title {
     margin-top: 0;
     margin-bottom: 18px;
