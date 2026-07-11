@@ -146,9 +146,6 @@ const bagikanKeWhatsApp = () => {
 <template>
     <div class="container-absensi">
 
-
-
-        <div class="header-banner">
         <div class="lottie-bg-global">
             <Vue3Lottie
                 :animationData="bubbleAnimation"
@@ -156,6 +153,9 @@ const bagikanKeWhatsApp = () => {
                 :autoPlay="true"
             />
         </div>
+
+
+        <div class="header-banner">
             <h2>HUT PT Mark Dynamics Indonesia Tbk</h2>
             <p>Sistem E-Absensi &amp; Kupon Undian Mandiri</p>
         </div>
@@ -277,20 +277,45 @@ const bagikanKeWhatsApp = () => {
         </div>
     </div>
 </template>
+
 <style scoped>
+/* 1. CONTAINER UTAMA (Jangkar untuk Background & Absolutitas) */
 .container-absensi {
+    position: relative;
     max-width: 480px;
     margin: 0 auto;
     padding: 20px 15px;
     font-family: sans-serif;
-    /* BACKGROUND WARNA CAFE GRADIENT - Perpaduan hangat moka ke krem gading yang estetik */
+    /* Background Cafe Gradient */
     background: linear-gradient(180deg, #e8dfd8 0%, #f5efe9 100%);
     min-height: 100vh;
     box-sizing: border-box;
+    overflow: hidden; /* Mencegah scrollbar muncul akibat luapan animasi */
 }
 
-/* HEADER BANNER - Tetap Merah & Oranye Menyala khas Logo dengan Gradasi Tajam */
+/* 2. LAYER ANIMASI LOTTIE GLOBAL (Berada di Belakang Konten) */
+.lottie-bg-global {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;           /* Layer bawah */
+    pointer-events: none; /* User tetap bisa klik tombol/input di atasnya */
+    opacity: 0.6;         /* Transparansi gelembung agar tidak terlalu mencolok */
+}
+
+/* Memaksa elemen SVG Lottie untuk memenuhi layar */
+.lottie-bg-global :deep(svg) {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+}
+
+/* 3. HEADER BANNER (Merah & Oranye Khas Logo) */
 .header-banner {
+    position: relative;
+    z-index: 2; /* Naik ke layer atas */
     text-align: center;
     margin-bottom: 25px;
     background: linear-gradient(135deg, #e63946 0%, #f35b04 100%);
@@ -299,12 +324,14 @@ const bagikanKeWhatsApp = () => {
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(243, 91, 4, 0.25);
 }
+
 .header-banner h2 {
     margin: 0;
     font-size: 1.35rem;
     letter-spacing: 0.5px;
     font-weight: 700;
 }
+
 .header-banner p {
     margin: 8px 0 0;
     font-size: 0.85rem;
@@ -313,8 +340,10 @@ const bagikanKeWhatsApp = () => {
     font-weight: 500;
 }
 
-/* DESAIN KARTU TIKET - Putih Bersih dengan Shadow Lembut di atas Background Hangat */
+/* 4. DESAIN KARTU TIKET (Setelah Check-in Sukses) */
 .ticket-card {
+    position: relative;
+    z-index: 2; /* Naik ke layer atas */
     background: #ffffff;
     border-radius: 16px;
     overflow: hidden;
@@ -322,33 +351,36 @@ const bagikanKeWhatsApp = () => {
     border: 1px solid rgba(218, 204, 193, 0.4);
     box-shadow: 0 10px 25px rgba(168, 150, 134, 0.15);
 }
+
 .ticket-header {
     padding: 25px 20px 10px;
     text-align: center;
     background: #fdfcfb;
 }
+
 .ticket-subtitle {
     font-size: 0.85rem;
     color: #666;
     margin: 5px 0 0;
 }
 
-/* Efek Potongan Tiket */
+/* Efek Potongan Tiket (Notch) */
 .ticket-divider {
     position: relative;
     height: 2px;
     border-top: 2px dashed #e4ded9;
     margin: 10px 0;
 }
+
 .notch {
     position: absolute;
     width: 20px;
     height: 20px;
-    /* KUNCI: Notch mengikuti warna gradasi atas agar menyatu sempurna */
-    background: #e8dfd8;
+    background: #e8dfd8; /* Mengikuti warna dasar background kontainer */
     border-radius: 50%;
     top: -11px;
 }
+
 .notch-left { left: -11px; }
 .notch-right { right: -11px; }
 
@@ -356,7 +388,7 @@ const bagikanKeWhatsApp = () => {
     padding: 15px 25px 25px;
 }
 
-/* KUPON BADGE - Gradasi Oranye Lembut yang Segar */
+/* Badge Nomor Kupon */
 .kupon-badge {
     text-align: center;
     background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
@@ -365,12 +397,14 @@ const bagikanKeWhatsApp = () => {
     padding: 18px;
     margin-bottom: 20px;
 }
+
 .kupon-label {
     font-size: 0.8rem;
     color: #e65100;
     font-weight: bold;
     letter-spacing: 1.5px;
 }
+
 .kupon-number {
     font-size: 3.2rem;
     font-weight: 900;
@@ -379,6 +413,7 @@ const bagikanKeWhatsApp = () => {
     letter-spacing: 4px;
 }
 
+/* Detail Metadata Karyawan */
 .meta-details {
     display: flex;
     flex-direction: column;
@@ -388,6 +423,7 @@ const bagikanKeWhatsApp = () => {
     border-radius: 8px;
     border: 1px solid #f0f0f0;
 }
+
 .meta-row {
     display: flex;
     justify-content: space-between;
@@ -395,6 +431,7 @@ const bagikanKeWhatsApp = () => {
     border-bottom: 1px dashed #eaeaea;
     padding-bottom: 6px;
 }
+
 .meta-label { color: #7f8c8d; }
 .meta-value { color: #2c3e50; text-align: right; }
 .text-bold { font-weight: bold; color: #111; }
@@ -406,32 +443,26 @@ const bagikanKeWhatsApp = () => {
     margin-top: 15px;
     font-style: italic;
 }
+
 .action-wrapper {
+    position: relative;
+    z-index: 2; /* Naik ke layer atas */
     padding: 0 5px;
 }
 
-/* BOX FORM CARI & INPUT PIN */
+/* 5. FORM CARI & INPUT PIN (Langkah Awal) */
+.step-wrapper {
+    position: relative;
+    z-index: 2; /* Naik ke layer atas */
+}
 
 .card-box {
-    position: relative;
-    z-index: 2; /* Naik di atas layer animasi gelembung */
     padding: 25px 20px;
     margin-bottom: 20px;
     border-radius: 12px;
     background: #ffffff;
     border: 1px solid rgba(218, 204, 193, 0.4);
     box-shadow: 0 10px 25px rgba(168, 150, 134, 0.15);
-}
-
-/* Memastikan wrapper langkah awal berada di atas gelembung */
-.step-wrapper {
-    position: relative;
-    z-index: 2;
-}
-
-/* Kustomisasi Input Varlet */
-:deep(.var-input) {
-    --input-focus-color: #f35b04;
 }
 
 .step-title {
@@ -444,11 +475,6 @@ const bagikanKeWhatsApp = () => {
     padding-left: 10px;
 }
 
-/* Kustomisasi Input Varlet */
-:deep(.var-input) {
-    --input-focus-color: #f35b04;
-}
-
 .info-karyawan {
     background: #fff3e0;
     padding: 14px;
@@ -457,10 +483,37 @@ const bagikanKeWhatsApp = () => {
     font-size: 0.95rem;
     border-left: 3px solid #f35b04;
 }
-.info-karyawan p { margin: 6px 0; color: #e65100; }
-.pin-instruction { font-size: 0.85rem; color: #555; margin-bottom: 10px; line-height: 1.4; }
 
-.animasi-muncul { animation: fadeIn 0.45s ease-in-out; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.info-karyawan p {
+    margin: 6px 0;
+    color: #e65100;
+}
+
+.pin-instruction {
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* 6. UTILITY KUSTOMISASI VARLET & ANIMASI */
+:deep(.var-input) {
+    --input-focus-color: #f35b04;
+}
+
+.animasi-muncul {
+    animation: fadeIn 0.45s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 </style>
 
