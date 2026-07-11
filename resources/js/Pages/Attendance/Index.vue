@@ -38,7 +38,7 @@ const cariDataKaryawan = () => {
     }
 
     isLoadingSearch.value = true
-    const baseUrl = page.props.app_url || '/varlet/public'
+    const baseUrl = page.props.app_url
 
     router.visit(`${baseUrl}/absensi`, {
         method: 'get',
@@ -89,7 +89,7 @@ const eksekusiCheckIn = () => {
         return
     }
 
-    const baseUrl = page.props.app_url || '/varlet/public'
+    const baseUrl = page.props.app_url
 
     form.post(`${baseUrl}/absensi/checkin`, {
         onSuccess: () => {
