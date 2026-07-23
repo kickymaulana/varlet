@@ -65,25 +65,11 @@ class AdminController extends Controller
 
         $ssoUser = $userResponse->json();
 
-        // Cari atau buat user lokal berdasarkan NIK
+        // Cari user lokal berdasarkan NIK
         $user = User::where('nik', $ssoUser['nik'])->first();
 
-        if (!$user) {
-            $user = User::create([
-                'nik' => $ssoUser['nik'],
-                'email' => $ssoUser['email'],
-                'name' => $ssoUser['name'],
-                'password' => bcrypt(\Str::random(32)),
-            ]);
-        } else {
-            $user->update([
-                'email' => $ssoUser['email'],
-                'name' => $ssoUser['name'],
-            ]);
-        }
-
-        // Cek apakah user punya role admin via Spatie
-        if (!$user->hasRole('admin')) {
+        // Cek apakah user terdaftar dan punya role admin
+        if (!$user || !$user->hasRole('admin')) {
             return redirect()->route('admin.login')->withErrors(['message' => 'Anda tidak memiliki akses ke admin panel']);
         }
 
