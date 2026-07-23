@@ -5,6 +5,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\LuckyDrawController;
+use App\Http\Controllers\Admin\ParticipantController;
 
 Route::redirect('/', '/absensi');
 
@@ -30,6 +31,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/lucky-draw/draw', [LuckyDrawController::class, 'drawPage'])->name('lucky-draw.draw');
     Route::post('/lucky-draw/draw/start', [LuckyDrawController::class, 'startDraw'])->name('lucky-draw.draw.start');
     Route::post('/lucky-draw/reset', [LuckyDrawController::class, 'resetDraw'])->name('lucky-draw.reset');
+
+    // Participants CRUD
+    Route::get('/participants', [ParticipantController::class, 'index'])->name('participants.index');
+    Route::post('/participants', [ParticipantController::class, 'store'])->name('participants.store');
+    Route::put('/participants/{id}', [ParticipantController::class, 'update'])->name('participants.update');
+    Route::delete('/participants/{id}', [ParticipantController::class, 'destroy'])->name('participants.destroy');
 });
 
 // Lucky Draw Display (public — for projector/TV)

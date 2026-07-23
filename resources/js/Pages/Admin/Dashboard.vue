@@ -128,6 +128,14 @@ const logout = () => {
       </div>
 
       <div class="nav-card">
+        <a :href="appUrl + '/admin/participants'" class="nav-link">
+          <var-icon name="account-group" :size="20" color="#4f46e5" />
+          <span>Kelola Peserta</span>
+          <var-icon name="chevron-right" :size="20" color="#94a3b8" />
+        </a>
+      </div>
+
+      <div class="nav-card">
         <a :href="appUrl + '/admin/lucky-draw/prizes'" class="nav-link">
           <var-icon name="gift" :size="20" color="#f59e0b" />
           <span>Atur Hadiah Lucky Draw</span>
