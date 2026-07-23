@@ -127,7 +127,7 @@ const search = () => {
               <td><var-chip :type="p.is_present ? 'success' : 'default'" size="mini">{{ p.is_present ? 'Ya' : 'Tidak' }}</var-chip></td>
               <td><var-chip :type="p.eligible_for_draw ? 'warning' : 'default'" size="mini">{{ p.eligible_for_draw ? 'Ya' : 'Tidak' }}</var-chip></td>
               <td class="actions">
-                <var-button size="small" text round @click="openEdit(p)"><var-icon name="pencil" :size="16" color="#d97706" /></var-button>
+                <var-button size="small" text round @click="openEdit(p)"><var-icon name="cog" :size="16" color="#d97706" /></var-button>
                 <var-button size="small" text round @click="confirmDelete(p)"><var-icon name="delete" :size="16" color="#ef4444" /></var-button>
               </td>
             </tr>
