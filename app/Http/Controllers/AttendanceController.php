@@ -69,15 +69,20 @@ class AttendanceController extends Controller
             return back()->withErrors(['nomor_induk' => 'Anda sudah melakukan check-in sebelumnya!']);
         }
 
-        $totalHadir = Participant::where('is_present', true)->count();
-        $nomorUrut = str_pad($totalHadir + 1, 4, '0', STR_PAD_LEFT);
-        $nomorKupon = 'MD-' . $nomorUrut;
-
-        $participant->update([
+        $updateData = [
             'is_present' => true,
-            'nomor_kupon' => $nomorKupon,
             'attended_at' => now(),
-        ]);
+        ];
+
+        if ($participant->eligible_for_draw) {
+            $totalHadir = Participant::where('is_present', true)->where('eligible_for_draw', true)->count();
+            $nomorUrut = str_pad($totalHadir + 1, 4, '0', STR_PAD_LEFT);
+            $updateData['nomor_kupon'] = 'MD-' . $nomorUrut;
+        } else {
+            $updateData['nomor_kupon'] = 'Tidak Dapat Undian';
+        }
+
+        $participant->update($updateData);
 
         // KUNCI: Redirect ke halaman kupon membawa parameter nomor_induk
         return redirect()->route('attendance.kupon', ['nomor_induk' => $participant->nomor_induk]);

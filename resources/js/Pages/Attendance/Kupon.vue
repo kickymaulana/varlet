@@ -23,12 +23,18 @@ const bagikanKeWhatsApp = () => {
     const dept = props.participant.departemen
 
     const teksPesan = encodeURIComponent(
-        `*KUPON LUCKY DRAW - HUT MARK DYNAMICS*\n\n` +
-        `Halo rekan-rekan, saya telah sukses melakukan E-Absensi!\n\n` +
-        `👤 *Nama:* ${nama}\n` +
-        `🏭 *Departemen:* ${dept}\n` +
-        `🎟️ *NOMOR UNDIAN:* ${kupon}\n\n` +
-        `Semoga beruntung di acara Door Prize nanti! 🎉`
+        props.participant.nomor_kupon === 'Tidak Dapat Undian'
+            ? `*BUKTI E-ABSENSI - HUT MARK DYNAMICS*\n\n` +
+              `Saya telah melakukan E-Absensi!\n\n` +
+              `👤 *Nama:* ${nama}\n` +
+              `🏭 *Departemen:* ${dept}\n\n` +
+              `Terima kasih. 🙏`
+            : `*KUPON LUCKY DRAW - HUT MARK DYNAMICS*\n\n` +
+              `Halo rekan-rekan, saya telah sukses melakukan E-Absensi!\n\n` +
+              `👤 *Nama:* ${nama}\n` +
+              `🏭 *Departemen:* ${dept}\n` +
+              `🎟️ *NOMOR UNDIAN:* ${kupon}\n\n` +
+              `Semoga beruntung di acara Door Prize nanti! 🎉`
     )
     window.open(`https://api.whatsapp.com/send?text=${teksPesan}`, '_blank')
 }
@@ -68,9 +74,10 @@ const kembaliUtama = () => {
                 </div>
 
                 <div class="ticket-body">
-                    <div class="kupon-badge">
-                        <span class="kupon-label">NOMOR KUPON ANDA</span>
-                        <h1 class="kupon-number">{{ props.participant.nomor_kupon }}</h1>
+                    <div class="kupon-badge" :class="{ 'no-kupon': props.participant.nomor_kupon === 'Tidak Dapat Undian' }">
+                        <span class="kupon-label">{{ props.participant.nomor_kupon === 'Tidak Dapat Undian' ? 'STATUS UNDIAN' : 'NOMOR KUPON ANDA' }}</span>
+                        <h1 v-if="props.participant.nomor_kupon !== 'Tidak Dapat Undian'" class="kupon-number">{{ props.participant.nomor_kupon }}</h1>
+                        <h1 v-else class="kupon-number no-kupon-text">🙏 Tidak Dapat Undian</h1>
                     </div>
 
                     <div class="meta-details">
@@ -235,6 +242,16 @@ const kembaliUtama = () => {
     color: #e65100;
     font-weight: bold;
     letter-spacing: 1.5px;
+}
+
+.kupon-badge.no-kupon {
+    background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+    border-color: #9333ea;
+}
+
+.no-kupon-text {
+    font-size: 1.6rem !important;
+    color: #7c3aed !important;
 }
 
 .kupon-number {

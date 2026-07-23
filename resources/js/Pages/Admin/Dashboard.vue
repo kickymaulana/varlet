@@ -128,6 +128,30 @@ const logout = () => {
       </div>
 
       <div class="nav-card">
+        <a :href="appUrl + '/admin/lucky-draw/prizes'" class="nav-link">
+          <var-icon name="gift" :size="20" color="#f59e0b" />
+          <span>Atur Hadiah Lucky Draw</span>
+          <var-icon name="chevron-right" :size="20" color="#94a3b8" />
+        </a>
+      </div>
+
+      <div class="nav-card">
+        <a :href="appUrl + '/admin/lucky-draw/draw'" class="nav-link">
+          <var-icon name="dice-5" :size="20" color="#4f46e5" />
+          <span>Lucky Draw (Undi Hadiah)</span>
+          <var-icon name="chevron-right" :size="20" color="#94a3b8" />
+        </a>
+      </div>
+
+      <div class="nav-card">
+        <a :href="appUrl + '/undian/show'" target="_blank" class="nav-link">
+          <var-icon name="television" :size="20" color="#22c55e" />
+          <span>Tampilan Layar Undian</span>
+          <var-icon name="chevron-right" :size="20" color="#94a3b8" />
+        </a>
+      </div>
+
+      <div class="nav-card">
         <a :href="appUrl + '/absensi'" class="nav-link">
           <var-icon name="clipboard-check" :size="20" color="#4f46e5" />
           <span>Ke Halaman Absensi</span>
