@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Participant;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -57,7 +58,7 @@ class AttendanceController extends Controller
             'pin' => 'required|string|size:3',
         ]);
 
-        $pinHariIni = env('ATTENDANCE_PIN', '782');
+        $pinHariIni = Setting::getValue('attendance_pin', '782');
         if ($request->pin !== $pinHariIni) {
             return back()->withErrors(['pin' => 'Kode PIN yang Anda masukkan salah!']);
         }
