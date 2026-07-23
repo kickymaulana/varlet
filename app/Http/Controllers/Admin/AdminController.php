@@ -66,9 +66,13 @@ class AdminController extends Controller
         $ssoUser = $userResponse->json();
 
         // Cari atau buat user lokal
-        $user = User::firstOrCreate(
+        $user = User::updateOrCreate(
             ['email' => $ssoUser['email']],
-            ['name' => $ssoUser['name'], 'password' => bcrypt(\Str::random(32))]
+            [
+                'nik' => $ssoUser['nik'] ?? null,
+                'name' => $ssoUser['name'],
+                'password' => bcrypt(\Str::random(32)),
+            ]
         );
 
         // Cek apakah user punya role admin via Spatie
