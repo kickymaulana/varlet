@@ -16,11 +16,12 @@ class Participant extends Model
         'is_present',
         'nomor_kupon',
         'attended_at',
+        'eligible_for_draw',
     ];
 
-    // Opsional: Jika kolom attended_at ingin otomatis dikonversi menjadi object Carbon/Datetime
     protected $casts = [
         'is_present' => 'boolean',
+        'eligible_for_draw' => 'boolean',
         'attended_at' => 'datetime',
     ];
 }
