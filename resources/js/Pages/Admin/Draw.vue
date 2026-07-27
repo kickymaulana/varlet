@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, usePage } from '@inertiajs/vue3'
+import { Head, usePage, router } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import { Snackbar, Dialog } from '@varlet/ui'
 
@@ -7,8 +7,11 @@ interface Prize { id: number; nama: string; urutan: number; is_drawn: boolean }
 interface Winner { id: number; prize: { nama: string }; nama_pemenang: string; nomor_kupon: string; drawn_at: string }
 
 const props = defineProps<{
-  prizes: Prize[]; winners: Winner[]; total_participants: number; remaining_count: number; current_draw_prize_id: string
+  prizes: any; winners: Winner[]; total_participants: number; remaining_count: number; current_draw_prize_id: string; filters?: { search?: string }
 }>()
+const searchVal = ref(props.filters?.search || '')
+const baseUrl2 = (usePage().props as any).app_url || ''
+const search = () => { router.get(baseUrl2 + '/admin/lucky-draw/draw', { search: searchVal.value }) }
 
 const page = usePage()
 const pp = page.props as any
@@ -58,8 +61,13 @@ const confirmReset = () => {
       <div class="stats">
         <div class="stat"><span>Hadir</span><b>{{ total_participants }}</b></div>
         <div class="stat"><span>Sisa</span><b class="warn">{{ remaining_count }}</b></div>
-        <div class="stat"><span>Hadiah</span><b>{{ prizes.length }}</b></div>
+        <div class="stat"><span>Hadiah</span><b>{{ prizes.total || prizes.length }}</b></div>
       </div>
+
+      <!-- Search -->
+      <var-input v-model="searchVal" placeholder="Cari hadiah..." @keyup.enter="search">
+        <template #append-icon><var-button size="small" @click="search"><var-icon name="magnify" :size="16" /></var-button></template>
+      </var-input>
 
       <div v-if="current_draw_prize_id" class="alert">
         <var-icon name="television" :size="20" color="#f59e0b" />
@@ -73,6 +81,12 @@ const confirmReset = () => {
           <var-chip v-if="p.is_drawn" size="mini" type="success">Selesai</var-chip>
           <var-chip v-else-if="current_draw_prize_id == String(p.id)" size="mini" type="warning">Di Layar</var-chip>
           <var-button v-if="!p.is_drawn && current_draw_prize_id != String(p.id)" size="small" type="primary" :loading="loading" @click="startDraw(p.id)">Mulai</var-button>
+        </div>
+        <!-- Pagination -->
+        <div v-if="prizes.last_page" class="pagination" style="margin-top:8px">
+          <a v-if="prizes.prev_page_url" :href="prizes.prev_page_url + (searchVal ? '&search=' + searchVal : '')" class="page-btn">Sebelumnya</a>
+          <span class="page-info">{{ prizes.from }}–{{ prizes.to }} dari {{ prizes.total }}</span>
+          <a v-if="prizes.next_page_url" :href="prizes.next_page_url + (searchVal ? '&search=' + searchVal : '')" class="page-btn">Selanjutnya</a>
         </div>
       </div>
 

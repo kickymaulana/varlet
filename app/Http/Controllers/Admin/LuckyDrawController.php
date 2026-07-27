@@ -14,11 +14,16 @@ class LuckyDrawController extends Controller
 {
     // ============ ADMIN: CRUD PRIZES ============
 
-    public function prizes()
+    public function prizes(Request $request)
     {
-        $prizes = Prize::orderBy('urutan')->get();
+        $query = Prize::orderBy('urutan');
+        if ($search = $request->input('search')) {
+            $query->where('nama', 'like', "%{$search}%");
+        }
+        $prizes = $query->paginate(10)->withQueryString();
         return Inertia::render('Admin/Prizes', [
             'prizes' => $prizes,
+            'filters' => ['search' => $search],
         ]);
     }
 
@@ -45,9 +50,13 @@ class LuckyDrawController extends Controller
 
     // ============ ADMIN: DRAW CONTROL ============
 
-    public function drawPage()
+    public function drawPage(Request $request)
     {
-        $prizes = Prize::orderBy('urutan')->get();
+        $query = Prize::orderBy('urutan');
+        if ($search = $request->input('search')) {
+            $query->where('nama', 'like', "%{$search}%");
+        }
+        $prizes = $query->paginate(10)->withQueryString();
         $winners = WinnerLog::with('prize')->latest()->get();
         $totalEligible = Participant::where('is_present', true)->where('eligible_for_draw', true)->count();
         $remaining = Participant::where('is_present', true)->where('eligible_for_draw', true)
@@ -60,6 +69,7 @@ class LuckyDrawController extends Controller
             'total_participants' => $totalEligible,
             'remaining_count' => $remaining,
             'current_draw_prize_id' => $currentDrawPrizeId,
+            'filters' => ['search' => $request->input('search')],
         ]);
     }
 

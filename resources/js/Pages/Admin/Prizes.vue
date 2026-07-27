@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import { Head, usePage } from '@inertiajs/vue3'
+import { Head, usePage, router } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import { Snackbar, Dialog } from '@varlet/ui'
 
 interface Prize {
-  id: number
-  nama: string
-  deskripsi: string | null
-  urutan: number
-  is_drawn: boolean
+  id: number; nama: string; deskripsi: string | null; urutan: number; is_drawn: boolean
 }
 
 const page = usePage()
@@ -16,7 +12,10 @@ const pageProps = page.props as any
 const baseUrl = pageProps.app_url || ''
 const csrfToken = pageProps.csrf_token || ''
 
-const props = defineProps<{ prizes: Prize[] }>()
+const props = defineProps<{ prizes: any; filters?: { search?: string } }>()
+const searchVal = ref(props.filters?.search || '')
+
+const search = () => { router.get(baseUrl + '/admin/lucky-draw/prizes', { search: searchVal.value }) }
 
 const showForm = ref(false)
 const editingId = ref<number | null>(null)
@@ -120,15 +119,20 @@ const confirmDelete = (prize: Prize) => {
         </div>
       </div>
 
+      <!-- Search -->
+      <var-input v-model="searchVal" placeholder="Cari hadiah..." @keyup.enter="search">
+        <template #append-icon><var-button size="small" @click="search"><var-icon name="magnify" :size="16" /></var-button></template>
+      </var-input>
+
       <!-- List Prizes -->
-      <div v-if="prizes.length === 0 && !showForm" class="empty-card">
+      <div v-if="prizes.data?.length === 0 && !showForm" class="empty-card">
         <var-icon name="gift" :size="48" color="#cbd5e1" />
         <p>Belum ada hadiah. Tambahkan hadiah untuk mulai undian.</p>
         <var-button type="primary" @click="openCreate">Tambah Hadiah</var-button>
       </div>
 
       <div v-else class="prize-list">
-        <div v-for="(prize, i) in prizes" :key="prize.id" class="prize-card" :class="{ drawn: prize.is_drawn }">
+        <div v-for="(prize, i) in (prizes.data || prizes)" :key="prize.id" class="prize-card" :class="{ drawn: prize.is_drawn }">
           <div class="prize-number">{{ i + 1 }}</div>
           <div class="prize-info">
             <h3>{{ prize.nama }}</h3>
@@ -151,6 +155,13 @@ const confirmDelete = (prize: Prize) => {
         <var-icon name="dice-5" :size="20" />
         Mulai Undian
       </a>
+
+      <!-- Pagination -->
+      <div v-if="prizes.last_page" class="pagination">
+        <a v-if="prizes.prev_page_url" :href="prizes.prev_page_url" class="page-btn">Sebelumnya</a>
+        <span class="page-info">{{ prizes.from }}–{{ prizes.to }} dari {{ prizes.total }}</span>
+        <a v-if="prizes.next_page_url" :href="prizes.next_page_url" class="page-btn">Selanjutnya</a>
+      </div>
     </main>
   </div>
 </template>

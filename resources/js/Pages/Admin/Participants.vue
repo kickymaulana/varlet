@@ -6,7 +6,7 @@ import { Snackbar, Dialog } from '@varlet/ui'
 interface Participant {
   id: number; nomor_induk: string; nama_lengkap: string; departemen: string
   lokasi_kerja: string; nomor_hp: string | null; nomor_kupon: string | null
-  is_present: boolean; eligible_for_draw: boolean
+  is_present: boolean; eligible_for_draw: boolean; attended_at: string | null
 }
 
 const page = usePage()
@@ -123,20 +123,23 @@ const search = () => {
       <!-- Table -->
       <div class="card table-wrap">
         <table>
-          <thead><tr><th>NIK</th><th>Nama</th><th>Dept</th><th>Hadir</th><th>Undian</th><th></th></tr></thead>
+          <thead><tr><th>NIK</th><th>Nama</th><th>Dept</th><th>No HP</th><th>Kupon</th><th>Hadir</th><th>Undian</th><th>Check-in</th><th></th></tr></thead>
           <tbody>
             <tr v-for="p in participants.data" :key="p.id">
               <td class="mono">{{ p.nomor_induk }}</td>
               <td>{{ p.nama_lengkap }}</td>
               <td>{{ p.departemen }}</td>
+              <td class="mono">{{ p.nomor_hp || '—' }}</td>
+              <td class="mono">{{ p.nomor_kupon || '—' }}</td>
               <td><var-chip :type="p.is_present ? 'success' : 'default'" size="mini">{{ p.is_present ? 'Ya' : 'Tidak' }}</var-chip></td>
               <td><var-chip :type="p.eligible_for_draw ? 'warning' : 'default'" size="mini">{{ p.eligible_for_draw ? 'Ya' : 'Tidak' }}</var-chip></td>
+              <td class="mono">{{ p.attended_at || '—' }}</td>
               <td class="actions">
                 <var-button size="small" text round @click="openEdit(p)"><var-icon name="cog" :size="16" color="#d97706" /></var-button>
                 <var-button size="small" text round @click="confirmDelete(p)"><var-icon name="delete" :size="16" color="#ef4444" /></var-button>
               </td>
             </tr>
-            <tr v-if="!participants.data.length"><td colspan="6" class="empty">Tidak ada data</td></tr>
+            <tr v-if="!participants.data.length"><td colspan="9" class="empty">Tidak ada data</td></tr>
           </tbody>
         </table>
         <!-- Pagination -->
