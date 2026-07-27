@@ -24,12 +24,12 @@ const showForm = ref(false)
 const editing = ref<Participant | null>(null)
 
 const form = ref({
-  nomor_induk: '', nama_lengkap: '', departemen: '', lokasi_kerja: '', nomor_hp: '', eligible_for_draw: true,
+  nomor_induk: '', nama_lengkap: '', departemen: '', lokasi_kerja: '', nomor_hp: '', eligible_for_draw: true, is_present: false,
 })
 
 const openCreate = () => {
   editing.value = null
-  form.value = { nomor_induk: '', nama_lengkap: '', departemen: '', lokasi_kerja: '', nomor_hp: '', eligible_for_draw: true }
+  form.value = { nomor_induk: '', nama_lengkap: '', departemen: '', lokasi_kerja: '', nomor_hp: '', eligible_for_draw: true, is_present: false }
   showForm.value = true
 }
 
@@ -39,6 +39,7 @@ const openEdit = (p: Participant) => {
     nomor_induk: p.nomor_induk, nama_lengkap: p.nama_lengkap,
     departemen: p.departemen, lokasi_kerja: p.lokasi_kerja,
     nomor_hp: p.nomor_hp || '', eligible_for_draw: p.eligible_for_draw,
+    is_present: p.is_present,
   }
   showForm.value = true
 }
@@ -107,6 +108,10 @@ const search = () => {
           <div class="switch-row">
             <span class="switch-label">Dapat Undian</span>
             <var-switch v-model="form.eligible_for_draw" :true-value="true" :false-value="false" />
+          </div>
+          <div class="switch-row">
+            <span class="switch-label">Sudah Check-in</span>
+            <var-switch v-model="form.is_present" :true-value="true" :false-value="false" />
           </div>
         </div>
         <div class="form-actions">
