@@ -23,7 +23,7 @@ const bagikanKeWhatsApp = () => {
     const dept = props.participant.departemen
 
     const teksPesan = encodeURIComponent(
-        props.participant.nomor_kupon === 'Tidak Dapat Undian'
+        !props.participant.nomor_kupon
             ? `*BUKTI E-ABSENSI - HUT MARK DYNAMICS*\n\n` +
               `Saya telah melakukan E-Absensi!\n\n` +
               `👤 *Nama:* ${nama}\n` +
@@ -74,9 +74,9 @@ const kembaliUtama = () => {
                 </div>
 
                 <div class="ticket-body">
-                    <div class="kupon-badge" :class="{ 'no-kupon': props.participant.nomor_kupon === 'Tidak Dapat Undian' }">
-                        <span class="kupon-label">{{ props.participant.nomor_kupon === 'Tidak Dapat Undian' ? 'STATUS UNDIAN' : 'NOMOR KUPON ANDA' }}</span>
-                        <h1 v-if="props.participant.nomor_kupon !== 'Tidak Dapat Undian'" class="kupon-number">{{ props.participant.nomor_kupon }}</h1>
+                    <div class="kupon-badge" :class="{ 'no-kupon': !props.participant.nomor_kupon }">
+                        <span class="kupon-label">{{ props.participant.nomor_kupon ? 'NOMOR KUPON ANDA' : 'STATUS UNDIAN' }}</span>
+                        <h1 v-if="props.participant.nomor_kupon" class="kupon-number">{{ props.participant.nomor_kupon }}</h1>
                         <h1 v-else class="kupon-number no-kupon-text">🙏 Tidak Dapat Undian</h1>
                     </div>
 

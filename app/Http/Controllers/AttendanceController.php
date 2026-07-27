@@ -78,9 +78,8 @@ class AttendanceController extends Controller
             $totalHadir = Participant::where('is_present', true)->where('eligible_for_draw', true)->count();
             $nomorUrut = str_pad($totalHadir + 1, 4, '0', STR_PAD_LEFT);
             $updateData['nomor_kupon'] = 'MD-' . $nomorUrut;
-        } else {
-            $updateData['nomor_kupon'] = 'Tidak Dapat Undian';
         }
+        // Kalau gak eligible, nomor_kupon tetap null (unique constraint aman)
 
         $participant->update($updateData);
 
