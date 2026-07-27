@@ -76,7 +76,7 @@ const confirmReset = () => {
 
       <div class="card">
         <h3>Daftar Hadiah</h3>
-        <div v-for="p in prizes" :key="p.id" class="row" :class="{ done: p.is_drawn }">
+        <div v-for="p in (prizes.data || prizes)" :key="p.id" class="row" :class="{ done: p.is_drawn }">
           <span class="name">{{ p.nama }}</span>
           <var-chip v-if="p.is_drawn" size="mini" type="success">Selesai</var-chip>
           <var-chip v-else-if="current_draw_prize_id == String(p.id)" size="mini" type="warning">Di Layar</var-chip>
