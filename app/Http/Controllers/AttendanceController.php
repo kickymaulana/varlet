@@ -75,8 +75,12 @@ class AttendanceController extends Controller
         ];
 
         if ($participant->eligible_for_draw) {
-            $totalHadir = Participant::where('is_present', true)->where('eligible_for_draw', true)->count();
-            $nomorUrut = str_pad($totalHadir + 1, 4, '0', STR_PAD_LEFT);
+            // Ambil nomor kupon terbesar yang pernah dibuat, lalu +1 (anti dobel walau ada reset)
+            $lastNumber = Participant::where('nomor_kupon', 'like', 'MD-%')
+                ->pluck('nomor_kupon')
+                ->map(fn($k) => (int) str_replace('MD-', '', $k))
+                ->max() ?? 0;
+            $nomorUrut = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
             $updateData['nomor_kupon'] = 'MD-' . $nomorUrut;
         } else {
             $updateData['nomor_kupon'] = null;
