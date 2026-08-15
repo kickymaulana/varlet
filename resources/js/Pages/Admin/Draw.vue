@@ -41,6 +41,8 @@ const confirmReset = () => {
   Dialog({
     title: 'Reset Undian?',
     message: 'Semua pemenang akan dihapus. Hadiah akan diundi ulang.',
+    confirmButtonText: 'Ya, Reset',
+    cancelButtonText: 'Batal',
     onConfirm: async () => {
       const res = await fetch(`${baseUrl}/admin/lucky-draw/reset`, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf } })
       if (res.ok) window.location.reload()
