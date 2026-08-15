@@ -35,6 +35,8 @@ class ParticipantController extends Controller
         $totalParticipants = Participant::count();
         $presentCount = Participant::where('is_present', true)->count();
         $absentCount = Participant::where('is_present', false)->count();
+        $eligibleCount = Participant::where('eligible_for_draw', true)->count();
+        $notEligibleCount = Participant::where('eligible_for_draw', false)->count();
 
         return Inertia::render('Admin/Participants', [
             'participants' => $participants,
@@ -47,6 +49,8 @@ class ParticipantController extends Controller
                 'total' => $totalParticipants,
                 'present' => $presentCount,
                 'absent' => $absentCount,
+                'eligible' => $eligibleCount,
+                'not_eligible' => $notEligibleCount,
             ],
         ]);
     }

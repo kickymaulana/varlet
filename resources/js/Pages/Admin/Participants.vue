@@ -163,6 +163,14 @@ const confirmResetAttendance = () => {
           <span class="stat-label">Belum Hadir</span>
           <span class="stat-value">{{ stats.absent }}</span>
         </div>
+        <div class="stat-box eligible">
+          <span class="stat-label">Dapat Undian</span>
+          <span class="stat-value">{{ stats.eligible }}</span>
+        </div>
+        <div class="stat-box not-eligible">
+          <span class="stat-label">Tidak Dapat Undian</span>
+          <span class="stat-value">{{ stats.not_eligible }}</span>
+        </div>
       </div>
 
       <!-- Form -->
@@ -261,6 +269,8 @@ const confirmResetAttendance = () => {
       .stat-box.total { border-left: 4px solid #4f46e5; }
       .stat-box.present { border-left: 4px solid #10b981; }
       .stat-box.absent { border-left: 4px solid #ef4444; }
+      .stat-box.eligible { border-left: 4px solid #f59e0b; }
+      .stat-box.not-eligible { border-left: 4px solid #9ca3af; }
       .stat-label { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
       .stat-value { font-size: 24px; font-weight: 700; color: #0f172a; }
 </style>
