@@ -37,6 +37,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/participants', [ParticipantController::class, 'store'])->name('participants.store');
     Route::put('/participants/{id}', [ParticipantController::class, 'update'])->name('participants.update');
     Route::delete('/participants/{id}', [ParticipantController::class, 'destroy'])->name('participants.destroy');
+    Route::post('/participants/reset-attendance', [ParticipantController::class, 'resetAttendance'])->name('participants.reset-attendance');
 });
 
 // Lucky Draw Display (public — for projector/TV)

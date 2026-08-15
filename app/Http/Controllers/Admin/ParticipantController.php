@@ -20,11 +20,23 @@ class ParticipantController extends Controller
             });
         }
 
+        if ($departemen = $request->input('departemen')) {
+            $query->where('departemen', $departemen);
+        }
+
+        if ($request->has('eligible_for_draw') && $request->input('eligible_for_draw') !== '') {
+            $query->where('eligible_for_draw', (bool) $request->input('eligible_for_draw'));
+        }
+
         $participants = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
 
         return Inertia::render('Admin/Participants', [
             'participants' => $participants,
-            'filters' => ['search' => $search],
+            'filters' => [
+                'search' => $search,
+                'departemen' => $departemen,
+                'eligible_for_draw' => $request->input('eligible_for_draw'),
+            ],
         ]);
     }
 
@@ -66,5 +78,17 @@ class ParticipantController extends Controller
     {
         Participant::findOrFail($id)->delete();
         return redirect()->route('admin.participants.index');
+    }
+
+    public function resetAttendance()
+    {
+        Participant::query()->update([
+            'is_present' => false,
+            'attended_at' => null,
+            'nomor_kupon' => null,
+        ]);
+
+        return redirect()->route('admin.participants.index')
+            ->with('success', 'Kehadiran semua peserta berhasil direset. Eligible for draw tidak berubah.');
     }
 }

@@ -16,10 +16,12 @@ const csrf = pp.csrf_token || ''
 
 const props = defineProps<{
   participants: any
-  filters: { search: string | null }
+  filters: { search: string | null; departemen: string | null; eligible_for_draw: string | null }
 }>()
 
 const searchInput = ref(props.filters.search || '')
+const departemenFilter = ref(props.filters.departemen || '')
+const eligibleFilter = ref(props.filters.eligible_for_draw !== null ? String(props.filters.eligible_for_draw) : '')
 const showForm = ref(false)
 const editing = ref<Participant | null>(null)
 
@@ -75,8 +77,40 @@ const confirmDelete = (p: Participant) => {
   })
 }
 
+const buildUrl = () => {
+  const params = new URLSearchParams()
+  if (searchInput.value) params.set('search', searchInput.value)
+  if (departemenFilter.value) params.set('departemen', departemenFilter.value)
+  if (eligibleFilter.value !== '') params.set('eligible_for_draw', eligibleFilter.value)
+  return `${baseUrl}/admin/participants?${params.toString()}`
+}
+
 const search = () => {
-  window.location.href = `${baseUrl}/admin/participants?search=${encodeURIComponent(searchInput.value)}`
+  window.location.href = buildUrl()
+}
+
+const clearFilters = () => {
+  searchInput.value = ''
+  departemenFilter.value = ''
+  eligibleFilter.value = ''
+  window.location.href = `${baseUrl}/admin/participants`
+}
+
+const confirmResetAttendance = () => {
+  Dialog({
+    title: 'Reset Kehadiran?',
+    message: 'Ini akan mengosongkan status hadir & nomor kupon SEMUA peserta. eligible_for_draw TIDAK berubah. Lanjutkan?',
+    confirmButtonText: 'Ya, Reset',
+    cancelButtonText: 'Batal',
+    onConfirm: async () => {
+      const res = await fetch(`${baseUrl}/admin/participants/reset-attendance`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf }
+      })
+      if (res.ok) { Snackbar.success('Kehadiran direset'); window.location.reload() }
+      else { Snackbar.error('Gagal reset') }
+    }
+  })
 }
 </script>
 
@@ -86,14 +120,32 @@ const search = () => {
     <header class="top-bar">
       <a :href="baseUrl + '/admin/dashboard'" class="back"><var-icon name="chevron-left" :size="24" color="#0f172a" /></a>
       <h1>👥 Peserta</h1>
+      <var-button text type="warning" @click="confirmResetAttendance" style="margin-right: 8px;">
+        Reset Kehadiran
+      </var-button>
       <var-button text round @click="openCreate"><var-icon name="plus" :size="22" color="#4f46e5" /></var-button>
     </header>
     <main class="content">
-      <!-- Search -->
+      <!-- Search & Filters -->
       <div class="search-box">
         <var-input v-model="searchInput" placeholder="Cari NIK atau Nama..." @keyup.enter="search">
           <template #append-icon><var-button size="small" @click="search"><var-icon name="magnify" :size="16" /></var-button></template>
         </var-input>
+      </div>
+
+      <div class="filter-row">
+        <var-select v-model="departemenFilter" placeholder="Semua Departemen" style="width: 200px;" @change="search">
+          <var-option value="">Semua Departemen</var-option>
+          <var-option v-for="p in participants.data" :key="p.departemen" :value="p.departemen">{{ p.departemen }}</var-option>
+        </var-select>
+        <var-select v-model="eligibleFilter" placeholder="Semua Undian" style="width: 180px;" @change="search">
+          <var-option value="">Semua Undian</var-option>
+          <var-option value="true">Dapat Undian</var-option>
+          <var-option value="false">Tidak Dapat Undian</var-option>
+        </var-select>
+        <var-button v-if="searchInput || departemenFilter || eligibleFilter !== ''" type="default" @click="clearFilters">
+          <var-icon name="close" :size="16" /> Hapus Filter
+        </var-button>
       </div>
 
       <!-- Form -->
@@ -159,23 +211,15 @@ const search = () => {
 .top-bar h1 { margin: 0; font-size: 16px; }
 .back { display: flex; text-decoration: none; }
 .content { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 16px; max-width: 900px; margin: 0 auto; width: 100%; }
-.search-box { background: #fff; border-radius: 12px; padding: 4px; }
-.card { background: #fff; border-radius: 20px; padding: 16px; border: 1px solid #f1f5f9; }
-.card h3 { margin: 0 0 12px; font-size: 14px; }
-.form-card { padding: 20px; }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.switch-row { display: flex; align-items: center; gap: 10px; padding-top: 8px; }
-.switch-label { font-size: 13px; color: #64748b; }
-.form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-th { text-align: left; padding: 8px 12px; color: #94a3b8; font-weight: 600; font-size: 11px; text-transform: uppercase; border-bottom: 1px solid #f1f5f9; }
-td { padding: 10px 12px; border-bottom: 1px solid #f8fafc; }
-.mono { font-family: monospace; font-size: 12px; }
-.actions { display: flex; gap: 2px; }
-.empty { text-align: center; padding: 24px; color: #94a3b8; }
-.pagination { display: flex; align-items: center; justify-content: center; gap: 16px; padding-top: 12px; font-size: 13px; }
-.page-btn { padding: 6px 16px; border-radius: 8px; background: #f1f5f9; color: #0f172a; text-decoration: none; font-weight: 600; }
-.page-btn:hover { background: #e2e8f0; }
-.page-info { color: #64748b; }
+.filter-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 12px;
+        flex-wrap: wrap;
+        background: #fff;
+        padding: 12px;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+      }
 </style>
