@@ -28,7 +28,7 @@ const fetchState = async () => {
     if (data.pending_draw) {
       pendingPrize.value = data.pending_draw
       currentWinner.value = null
-      if (phase.value === 'idle') phase.value = 'ready'
+      if (phase.value !== 'animating') phase.value = 'ready'
     } else {
       pendingPrize.value = null
       if (data.current_winner && phase.value !== 'animating') {
