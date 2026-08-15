@@ -17,6 +17,7 @@ const csrf = pp.csrf_token || ''
 const props = defineProps<{
   participants: any
   filters: { search: string | null; departemen: string | null; eligible_for_draw: string | null }
+  stats: { total: number; present: number; absent: number }
 }>()
 
 const searchInput = ref(props.filters.search || '')
@@ -148,6 +149,22 @@ const confirmResetAttendance = () => {
         </var-button>
       </div>
 
+      <!-- Statistics -->
+      <div class="stats-row">
+        <div class="stat-box total">
+          <span class="stat-label">Total</span>
+          <span class="stat-value">{{ stats.total }}</span>
+        </div>
+        <div class="stat-box present">
+          <span class="stat-label">Hadir</span>
+          <span class="stat-value">{{ stats.present }}</span>
+        </div>
+        <div class="stat-box absent">
+          <span class="stat-label">Belum Hadir</span>
+          <span class="stat-value">{{ stats.absent }}</span>
+        </div>
+      </div>
+
       <!-- Form -->
       <div v-if="showForm" class="card form-card">
         <h3>{{ editing ? 'Edit Peserta' : 'Tambah Peserta' }}</h3>
@@ -222,4 +239,28 @@ const confirmResetAttendance = () => {
         border-radius: 12px;
         border: 1px solid #f1f5f9;
       }
+      .stats-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+      }
+      .stat-box {
+        flex: 1;
+        min-width: 120px;
+        background: #fff;
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      }
+      .stat-box.total { border-left: 4px solid #4f46e5; }
+      .stat-box.present { border-left: 4px solid #10b981; }
+      .stat-box.absent { border-left: 4px solid #ef4444; }
+      .stat-label { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+      .stat-value { font-size: 24px; font-weight: 700; color: #0f172a; }
 </style>

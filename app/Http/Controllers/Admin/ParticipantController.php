@@ -25,10 +25,16 @@ class ParticipantController extends Controller
         }
 
         if ($request->has('eligible_for_draw') && $request->input('eligible_for_draw') !== '') {
-            $query->where('eligible_for_draw', (bool) $request->input('eligible_for_draw'));
+            $value = $request->input('eligible_for_draw');
+            $query->where('eligible_for_draw', $value === 'true' || $value === true);
         }
 
         $participants = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+
+        // Statistics for all participants (not filtered)
+        $totalParticipants = Participant::count();
+        $presentCount = Participant::where('is_present', true)->count();
+        $absentCount = Participant::where('is_present', false)->count();
 
         return Inertia::render('Admin/Participants', [
             'participants' => $participants,
@@ -36,6 +42,11 @@ class ParticipantController extends Controller
                 'search' => $search,
                 'departemen' => $departemen,
                 'eligible_for_draw' => $request->input('eligible_for_draw'),
+            ],
+            'stats' => [
+                'total' => $totalParticipants,
+                'present' => $presentCount,
+                'absent' => $absentCount,
             ],
         ]);
     }
