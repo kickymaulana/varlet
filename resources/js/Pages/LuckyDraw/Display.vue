@@ -6,7 +6,7 @@ const page = usePage()
 const pp = page.props as any
 const baseUrl = pp.app_url || ''
 
-const phase = ref<'idle' | 'ready' | 'animating' | 'revealed'>('idle')
+const phase = ref<'idle' | 'ready' | 'animating' | 'revealed' | 'all_done'>('idle')
 const pendingPrize = ref<{ id: number; nama: string; deskripsi: string | null } | null>(null)
 const currentWinner = ref<any>(null)
 const animatingName = ref('')
@@ -54,6 +54,11 @@ const startDraw = async () => {
     })
     const data = await res.json()
     if (res.ok) {
+      if (data.all_winners_done) {
+        pendingPrize.value = null
+        phase.value = 'all_done'
+        return
+      }
       currentWinner.value = data
       pendingPrize.value = null
       phase.value = 'animating'
@@ -145,6 +150,18 @@ onUnmounted(() => {
       </div>
       <div class="winner-kupon">{{ currentWinner.nomor_kupon || currentWinner.winner?.nomor_kupon }}</div>
       <div v-if="currentWinner.departemen || currentWinner.winner?.departemen" class="winner-dept">{{ currentWinner.departemen || currentWinner.winner?.departemen }}</div>
+    </div>
+
+    <!-- ALL DONE: Semua hadiah sudah diundi -->
+    <div v-else-if="phase === 'all_done'" class="center">
+      <div class="icon">🎊</div>
+      <h2>Semua Hadiah Telah Diundi!</h2>
+      <p class="all-done-message">Selamat kepada semua pemenang! 🎉</p>
+      <div class="all-done-summary">
+        <p>Total hadiah: <strong>{{ winners.length }}</strong></p>
+        <p>Total pemenang: <strong>{{ winners.length }}</strong></p>
+      </div>
+      <p class="hint">Refresh halaman ini untuk memulai undian baru (setelah admin reset)</p>
     </div>
 
     <div class="footer">
@@ -267,4 +284,7 @@ onUnmounted(() => {
 .m-name { flex: 1; }
 .m-kupon { font-family: monospace; }
 .empty { justify-content: center; opacity: 0.5; }
+  .all-done-message { font-size: 24px; margin: 16px 0; color: #fbbf24; font-weight: 600; }
+  .all-done-summary { background: rgba(255,255,255,0.1); padding: 20px 40px; border-radius: 16px; margin-top: 16px; font-size: 18px; }
+  .all-done-summary p { margin: 8px 0; }
 </style>

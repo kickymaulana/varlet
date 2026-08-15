@@ -8,6 +8,7 @@ use App\Models\Prize;
 use App\Models\Setting;
 use App\Models\WinnerLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class LuckyDrawController extends Controller
@@ -82,26 +83,65 @@ class LuckyDrawController extends Controller
             return response()->json(['message' => 'Hadiah ini sudah diundi'], 400);
         }
         Setting::setValue('current_draw_prize_id', $prize->id);
+        
+        // Debug: cek apakah benar tersimpan
+        $saved = Setting::getValue('current_draw_prize_id');
+        Log::info('startDraw: set current_draw_prize_id', [
+            'request_prize_id' => $prize->id,
+            'saved_value' => $saved,
+            'match' => $saved == $prize->id,
+        ]);
+        
         return response()->json(['prize_id' => $prize->id, 'prize_name' => $prize->nama]);
     }
 
     // Display/MC klik "Mulai Undi" → ambil pemenang, simpan, clear current_draw
     public function executeDraw(Request $request)
-    {
+{
+        Log::info('executeDraw: ENTRY', ['method' => $request->method(), 'all' => $request->all(), 'json' => $request->json()->all(), 'content' => $request->getContent()]);
+        
+        // Manual JSON parsing fallback
+        $data = $request->json()->all();
+        if (empty($data) && $request->getContent()) {
+            $data = json_decode($request->getContent(), true) ?? [];
+        }
+        $requestPrizeId = $data['prize_id'] ?? $request->input('prize_id');
+        
+        if (!$requestPrizeId) {
+            Log::warning('executeDraw: prize_id missing', ['all' => $request->all(), 'json' => $request->json()->all()]);
+            return response()->json(['message' => 'prize_id diperlukan'], 400);
+        }
+        
         $request->validate(['prize_id' => 'required|exists:prizes,id']);
-
-        $prizeId = Setting::getValue('current_draw_prize_id');
-        if ($prizeId != $request->prize_id) {
+        
+        $storedPrizeId = Setting::getValue('current_draw_prize_id');
+        
+        // Debug: log nilai yang dibaca
+        Log::info('executeDraw: cek current_draw_prize_id', [
+            'request_prize_id' => $requestPrizeId,
+            'stored_prize_id' => $storedPrizeId,
+            'match' => $storedPrizeId == $requestPrizeId,
+            'session_id' => session()->getId(),
+        ]);
+        
+        if ($storedPrizeId != $requestPrizeId) {
+            Log::warning('executeDraw: MISMATCH!', [
+                'stored' => $storedPrizeId,
+                'request' => $requestPrizeId,
+            ]);
             return response()->json(['message' => 'Tidak ada sesi undian untuk hadiah ini'], 400);
         }
-
-        $prize = Prize::findOrFail($request->prize_id);
+        
+        $prize = Prize::findOrFail($requestPrizeId);
         $available = Participant::where('is_present', true)->where('eligible_for_draw', true)
             ->whereNotIn('id', WinnerLog::pluck('participant_id'))->get();
 
         if ($available->isEmpty()) {
             Setting::setValue('current_draw_prize_id', '');
-            return response()->json(['message' => 'Semua peserta sudah mendapat hadiah'], 400);
+            return response()->json([
+                'all_winners_done' => true,
+                'message' => 'Semua peserta sudah mendapat hadiah'
+            ]);
         }
 
         $winner = $available->random();
@@ -167,6 +207,12 @@ class LuckyDrawController extends Controller
         if ($currentDrawPrizeId) {
             $pendingPrize = Prize::find($currentDrawPrizeId);
         }
+
+        Log::info('displayData: polling', [
+            'current_draw_prize_id' => $currentDrawPrizeId,
+            'pending_prize' => $pendingPrize ? $pendingPrize->id : null,
+            'winners_count' => $winners->count(),
+        ]);
 
         return response()->json([
             'current_winner' => $currentWinner,
