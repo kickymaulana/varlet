@@ -3,6 +3,9 @@ import { router, usePage } from '@inertiajs/vue3'
 import { Paper, Result, Button, Icon } from '@varlet/ui'
 import Vue3Lottie from 'vue3-lottie'
 import bubbleAnimation from '../../Assets/bubble-explosion.json'
+import { useDarkTheme } from '../../composables/useDarkTheme'
+
+useDarkTheme()
 
 // Menerima data participant langsung sebagai props
 const props = defineProps<{
@@ -118,50 +121,51 @@ const kembaliUtama = () => {
 
 
 <style scoped>
-/* 1. CONTAINER UTAMA (Jangkar untuk Background & Absolutitas) */
+/* 1. CONTAINER UTAMA (Dark Theme) */
 .container-absensi {
     position: relative;
     max-width: 480px;
     margin: 0 auto;
     padding: 20px 15px;
     font-family: sans-serif;
-    /* Background Cafe Gradient */
-    background: linear-gradient(180deg, #e8dfd8 0%, #f5efe9 100%);
+    background: linear-gradient(180deg, #0f0f23 0%, #1a1a3e 50%, #16213e 100%);
     min-height: 100vh;
     box-sizing: border-box;
-    overflow: hidden; /* Mencegah scrollbar muncul akibat luapan animasi */
+    overflow: hidden;
+    color: #e4e4e7;
 }
 
-/* 2. LAYER ANIMASI LOTTIE GLOBAL (Berada di Belakang Konten) */
+/* 2. LAYER ANIMASI LOTTIE GLOBAL */
 .lottie-bg-global {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1;           /* Layer bawah */
-    pointer-events: none; /* User tetap bisa klik tombol/input di atasnya */
-    opacity: 0.6;         /* Transparansi gelembung agar tidak terlalu mencolok */
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.1;
 }
 
-/* Memaksa elemen SVG Lottie untuk memenuhi layar */
 .lottie-bg-global :deep(svg) {
     width: 100% !important;
     height: 100% !important;
     object-fit: cover;
+    filter: invert(1) hue-rotate(180deg);
 }
 
-/* 3. HEADER BANNER (Merah & Oranye Khas Logo) */
+/* 3. HEADER BANNER */
 .header-banner {
     position: relative;
-    z-index: 2; /* Naik ke layer atas */
+    z-index: 2;
     text-align: center;
     margin-bottom: 25px;
-    background: linear-gradient(135deg, #e63946 0%, #f35b04 100%);
+    background: linear-gradient(135deg, #1e1e3f 0%, #2a2a5e 100%);
     color: #ffffff;
     padding: 25px 20px;
     border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(243, 91, 4, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .header-banner h2 {
@@ -169,37 +173,41 @@ const kembaliUtama = () => {
     font-size: 1.35rem;
     letter-spacing: 0.5px;
     font-weight: 700;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .header-banner p {
     margin: 8px 0 0;
     font-size: 0.85rem;
-    opacity: 0.95;
-    color: #ffffff;
+    opacity: 0.85;
+    color: #d1d5db;
     font-weight: 500;
 }
 
-/* 4. DESAIN KARTU TIKET (Setelah Check-in Sukses) */
+/* 4. DESAIN KARTU TIKET (Dark) */
 .ticket-card {
     position: relative;
-    z-index: 2; /* Naik ke layer atas */
-    background: #ffffff;
+    z-index: 2;
+    background: linear-gradient(145deg, #1e1e3f 0%, #16213e 100%);
     border-radius: 16px;
     overflow: hidden;
     margin-bottom: 25px;
-    border: 1px solid rgba(218, 204, 193, 0.4);
-    box-shadow: 0 10px 25px rgba(168, 150, 134, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
 .ticket-header {
     padding: 25px 20px 10px;
     text-align: center;
-    background: #fdfcfb;
+    background: linear-gradient(145deg, #1e1e3f 0%, #25254a 100%);
 }
 
 .ticket-subtitle {
     font-size: 0.85rem;
-    color: #666;
+    color: #9ca3af;
     margin: 5px 0 0;
 }
 
@@ -207,7 +215,7 @@ const kembaliUtama = () => {
 .ticket-divider {
     position: relative;
     height: 2px;
-    border-top: 2px dashed #e4ded9;
+    border-top: 2px dashed rgba(255, 255, 255, 0.1);
     margin: 10px 0;
 }
 
@@ -215,7 +223,7 @@ const kembaliUtama = () => {
     position: absolute;
     width: 20px;
     height: 20px;
-    background: #e8dfd8; /* Mengikuti warna dasar background kontainer */
+    background: #0f0f23;
     border-radius: 50%;
     top: -11px;
 }
@@ -230,8 +238,8 @@ const kembaliUtama = () => {
 /* Badge Nomor Kupon */
 .kupon-badge {
     text-align: center;
-    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-    border: 2px solid #f35b04;
+    background: linear-gradient(135deg, #1e3a5f 0%, #1e4d7a 100%);
+    border: 2px solid #3b82f6;
     border-radius: 12px;
     padding: 18px;
     margin-bottom: 20px;
@@ -239,27 +247,28 @@ const kembaliUtama = () => {
 
 .kupon-label {
     font-size: 0.8rem;
-    color: #e65100;
+    color: #bfdbfe;
     font-weight: bold;
     letter-spacing: 1.5px;
 }
 
 .kupon-badge.no-kupon {
-    background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
-    border-color: #9333ea;
+    background: linear-gradient(135deg, #2e1065 0%, #4c1d95 100%);
+    border-color: #a855f7;
 }
 
 .no-kupon-text {
     font-size: 1.6rem !important;
-    color: #7c3aed !important;
+    color: #c084fc !important;
 }
 
 .kupon-number {
     font-size: 3.2rem;
     font-weight: 900;
-    color: #d84315;
+    color: #60a5fa;
     margin: 5px 0 0;
     letter-spacing: 4px;
+    text-shadow: 0 0 20px rgba(96, 165, 250, 0.5);
 }
 
 /* Detail Metadata Karyawan */
@@ -267,27 +276,27 @@ const kembaliUtama = () => {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    background: #fafafa;
+    background: rgba(30, 30, 63, 0.8);
     padding: 15px;
     border-radius: 8px;
-    border: 1px solid #f0f0f0;
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .meta-row {
     display: flex;
     justify-content: space-between;
     font-size: 0.95rem;
-    border-bottom: 1px dashed #eaeaea;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
     padding-bottom: 6px;
 }
 
-.meta-label { color: #7f8c8d; }
-.meta-value { color: #2c3e50; text-align: right; }
-.text-bold { font-weight: bold; color: #111; }
+.meta-label { color: #9ca3af; }
+.meta-value { color: #e4e4e7; text-align: right; }
+.text-bold { font-weight: bold; color: #fbbf24; }
 
 .ticket-note {
     font-size: 0.78rem;
-    color: #95a5a6;
+    color: #6b7280;
     text-align: center;
     margin-top: 15px;
     font-style: italic;
@@ -295,59 +304,13 @@ const kembaliUtama = () => {
 
 .action-wrapper {
     position: relative;
-    z-index: 2; /* Naik ke layer atas */
+    z-index: 2;
     padding: 0 5px;
 }
 
-/* 5. FORM CARI & INPUT PIN (Langkah Awal) */
-.step-wrapper {
-    position: relative;
-    z-index: 2; /* Naik ke layer atas */
-}
-
-.card-box {
-    padding: 25px 20px;
-    margin-bottom: 20px;
-    border-radius: 12px;
-    background: #ffffff;
-    border: 1px solid rgba(218, 204, 193, 0.4);
-    box-shadow: 0 10px 25px rgba(168, 150, 134, 0.15);
-}
-
-.step-title {
-    margin-top: 0;
-    margin-bottom: 18px;
-    color: #e63946;
-    font-size: 1.1rem;
-    font-weight: 700;
-    border-left: 4px solid #f35b04;
-    padding-left: 10px;
-}
-
-.info-karyawan {
-    background: #fff3e0;
-    padding: 14px;
-    border-radius: 8px;
-    margin-bottom: 18px;
-    font-size: 0.95rem;
-    border-left: 3px solid #f35b04;
-}
-
-.info-karyawan p {
-    margin: 6px 0;
-    color: #e65100;
-}
-
-.pin-instruction {
-    font-size: 0.85rem;
-    color: #555;
-    margin-bottom: 10px;
-    line-height: 1.4;
-}
-
-/* 6. UTILITY KUSTOMISASI VARLET & ANIMASI */
+/* 5. UTILITY KUSTOMISASI VARLET & ANIMASI */
 :deep(.var-input) {
-    --input-focus-color: #f35b04;
+    --input-focus-color: #f59e0b;
 }
 
 .animasi-muncul {

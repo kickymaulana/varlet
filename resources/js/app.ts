@@ -1,9 +1,7 @@
 import { createInertiaApp } from '@inertiajs/vue3'
-import Varlet, { Themes, StyleProvider } from '@varlet/ui'
+import Varlet from '@varlet/ui'
 import '@varlet/ui/es/style'
 import Vue3Lottie from 'vue3-lottie'
-
-StyleProvider(Themes.md3Light)
 
 createInertiaApp({
     withApp(app) {
