@@ -29,4 +29,12 @@ class WinnerLog extends Model
     {
         return $this->belongsTo(Participant::class);
     }
+
+    public function scopeSearchByName($query, $search)
+    {
+        if ($search) {
+            return $query->where('nama_pemenang', 'like', "%{$search}%");
+        }
+        return $query;
+    }
 }

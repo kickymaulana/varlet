@@ -6,6 +6,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\LuckyDrawController;
 use App\Http\Controllers\Admin\ParticipantController;
+use App\Http\Controllers\PublicWinnerController;
 
 Route::redirect('/', '/absensi');
 
@@ -44,6 +45,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::get('/undian/show', [LuckyDrawController::class, 'display'])->name('lucky-draw.display');
 Route::get('/undian/data', [LuckyDrawController::class, 'displayData'])->name('lucky-draw.display-data');
 Route::any('/undian/draw', [LuckyDrawController::class, 'executeDraw'])->name('lucky-draw.display-draw');
+
+// Public Winners Page
+Route::get('/undian/winners', [PublicWinnerController::class, 'index'])->name('winners.index');
 
 // SSO Callback
 Route::get('/callback', [AdminController::class, 'callback'])->name('admin.callback');
